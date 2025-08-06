@@ -14,7 +14,8 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
     '/account/register',
     '/account/forgot-password',
     '/account/reset-password',
-    '/account/refresh-token'
+    '/account/refresh-token',
+    '/api/roles'  // Permitir acceso a roles para el registro
   ];
 
   // Verificar si la URL actual es una ruta pública

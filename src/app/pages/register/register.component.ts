@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
 import { RoleService } from '../../services/role.service';
-import { Observable, reduce } from 'rxjs';
+import { Observable, reduce, of, catchError } from 'rxjs';
 import { Role } from '../../interfaces/role';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -46,6 +46,13 @@ export class RegisterComponent implements OnInit {
   confirmPasswordHide: boolean = true;
   passwordHide: boolean = true;
   errors!: ValidationError[];
+
+  // Roles predefinidos como fallback
+  defaultRoles: Role[] = [
+    { id: '1', name: 'User', totalUsers: 0 },
+    { id: '2', name: 'Admin', totalUsers: 0 },
+    { id: '3', name: 'Manager', totalUsers: 0 }
+  ];
 
   register() {
     const roles = this.registerForm.get('roles')?.value || [];
@@ -95,7 +102,15 @@ export class RegisterComponent implements OnInit {
       }
     );
 
-    this.roles$ = this.roleService.getRoles();
+    this.roles$ = this.roleService.getRoles().pipe(
+      catchError(error => {
+        console.log('Error loading roles from server, using default roles:', error);
+        this.matSnackbar.open('Using default roles (server unavailable)', 'Close', {
+          duration: 3000,
+        });
+        return of(this.defaultRoles);
+      })
+    );
   }
 
   private passwordMatchValidator(
